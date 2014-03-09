@@ -2,7 +2,7 @@
  * LightController.js
  * (c) 2014 Brian Harris
  * Controller for aquarium lights part of the AquaBeagle aquarium
- * controller.
+ * controller. my test
 *********************************************************************/
 var config = require('config.js');
 var ephemeris = require('ephemeris');
