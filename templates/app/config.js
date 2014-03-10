@@ -5,7 +5,7 @@
 ***************************************************************************/
 
 var fs = require('fs');
-var cfg = require('../../config.json');
+var cfg = require('./config.json');
 
 var config = {
     save: function() {
@@ -21,7 +21,13 @@ var config = {
  *      Row 1 - Daytime max setting for each of the 8 channels.
  *      Row 2 - Nighttime max setting for each of the 8 channels.
  *      Row 3 - Delay/offset settings.
- *      Row 4 - BBB GPIO pin(s) numbers.
+ *      Row 4 - Channel. (For synchronizing pin(s) during light effects).
+ *      Row 5 - BBB GPIO pin(s) numbers.
+ *
+ *      Settings can be  and number 0 - 4095.
+ *      0 - off
+ *      ...
+ *      4095 - Max brightness
  */
 Object.defineProperty(config, "pwmSettings", {
     get: function() {
@@ -29,6 +35,7 @@ Object.defineProperty(config, "pwmSettings", {
         if (cfg["pwmSettings"] == undefined || cfg["pwmSettings"] == "") {
             // Setup a 4x8 Array with default off settings and standard BBB pin(s).
             cfg["pwmSettings"] = [
+                [0, 0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0, 0],
@@ -170,7 +177,7 @@ Object.defineProperty(config, "rampTime", {
 
 /*
  * Cloud Frequency property:
- *   Ramps lights down to a lower brightness for 15 seconds, then back up to full to simulate a passing cloud.
+ *   Ramps lights down to a lower brightness for a random number of seconds, then back up to full to simulate a passing cloud.
  *
  *   Values:
  *      0 - Feature disabled.
@@ -336,6 +343,35 @@ Object.defineProperty(config, "fanControl", {
             cfg["fanControl"] = 0;
         } else {
             cfg["fanControl"] = Math.floor(onof);
+        }
+    }
+});
+
+/*
+ * Fan Max property:
+ *   The maximum setting for the fan speed.
+ *
+ *   Values:
+ *      0 - Fan off.
+ *      ...
+ *      4095 - Max fan speed.
+ */
+Object.defineProperty(config, "fanMax", {
+    get: function() {
+        // Set default to turn fan off.
+        if (cfg["fanMax"] === undefined || cfg["fanMax"] ==="") {
+            cfg["fanMax"] = 0;
+        }
+        return cfg["fanMax"];
+    },
+
+    set: function(setting) {
+        // Ensure the value is a number between 0 and 4095.
+        if (typeof setting != "number" || (setting < 0 || setting > 4095)) {
+            console.warn("Invalid fan max; Supported values are between 0 and 4095.  Setting to 0, off.");
+            cfg["fanMax"] = 0;
+        } else {
+            cfg["fanMax"] = Math.floor(setting);
         }
     }
 });
