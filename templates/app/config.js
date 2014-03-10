@@ -9,7 +9,7 @@ var cfg = require('../../config.json');
 
 var config = {
     save: function() {
-        fs.writeFileSync('./config.json', JSON.stringify(cfg));
+        fs.writeFileSync('./templates/app/config.json', JSON.stringify(cfg));
         console.log('Saved config to \'config.json\'!');
     }
 };

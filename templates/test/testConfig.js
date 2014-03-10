@@ -91,7 +91,7 @@ module.exports = {
         config.save();
 
         // Assert that the latitude was written out as 32.22
-        fs.readFile('./config.json', function (err, data) {
+        fs.readFile('./templates/app/config.json', function (err, data) {
             test.ok(!err);
             test.ok(data.latitude == 32.22);
         });

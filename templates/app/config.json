@@ -1,1 +1,1 @@
-{ "version": "v0.6.6" }
+{"controllerMode":"manual","sunriseTime":25200,"sunsetTime":64800,"rampTime":45,"cloudFrequency":0,"lightningFrequency":0,"simulateMoon":0,"latitude":32.22,"longitude":0,"fanControl":0,"pwmSettings":[[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],["P9_22","P9_29","P9_14","P8_34","P8_45","P8_13","P9_42","P9_28"]]}
