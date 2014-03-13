@@ -9,28 +9,28 @@ function assertNear(test, val1, val2, margin) {
     test.ok(Math.abs(val1 - val2) < margin, 'asserted almost equal: ' + val1 + ', ' + val2);
 }
 
-var date = new Date('2014-03-04UTC'),
+var date = Date.UTC(2014, 2, 12),
     lat = 32.22,
     lng = -110.96;
 
 var testSunTimes = {
-    solarNoon: "2014-03-04T19:37:12Z",
-    nadir: "2014-03-04T07:37:12Z",
-    sunrise: "2014-03-04T13:50:16Z",
-    sunset: "2014-03-05T01:24:08Z",
-    sunriseEnd: "2014-03-04T13:52:48Z",
-    sunsetStart: "2014-03-05T01:21:37Z",
-    dawn: "2014-03-04T13:25:42Z",
-    dusk: "2014-03-05T01:48:43Z",
-    nauticalDawn: "2014-03-04T12:57:18Z",
-    nauticalDusk: "2014-03-05T02:17:07Z",
-    nightEnd: "2014-03-04T12:28:55Z",
-    night: "2014-03-05T02:45:30Z"
+    solarNoon: Date.UTC(2014, 2, 4, 19, 37, 12),
+    nadir: Date.UTC(2014, 2, 4, 7, 37, 12),
+    sunrise: Date.UTC(2014, 2, 4, 13, 50, 16),
+    sunset: Date.UTC(2014, 2, 5, 1, 24, 8),
+    sunriseEnd: Date.UTC(2014, 2, 4, 13, 52, 48),
+    sunsetStart: Date.UTC(2014, 2, 5, 1, 21, 37),
+    dawn: Date.UTC(2014, 2, 4, 13, 25, 42),
+    dusk: Date.UTC(2014, 2, 5, 1, 48, 43),
+    nauticalDawn: Date.UTC(2014, 2, 4, 12, 57, 18),
+    nauticalDusk: Date.UTC(2014, 2, 5, 2, 17, 7),
+    nightEnd: Date.UTC(2014, 2, 4, 12, 28, 55),
+    night: Date.UTC(2014, 2, 5, 2, 45, 30)
 };
 
 var testMoonTimes = {
-    moonrise: "2014-03-04T15:51:08Z",
-    moonset: "2014-03-05T05:18:56Z"
+    moonrise: Date.UTC(2014, 2, 4, 15, 51, 8),
+    moonset: Date.UTC(2014, 2, 5, 5, 18, 56)
 }
 
 module.exports = {
@@ -50,7 +50,7 @@ module.exports = {
 
         for (var i in testSunTimes) {
             if (testSunTimes[i] != "")
-                test.equal(times[i].toUTCString(), new Date(testSunTimes[i]).toUTCString());
+                test.equal(times[i], testSunTimes[i]);
         }
         test.done();
     },
@@ -67,8 +67,8 @@ module.exports = {
     test_getMoonTimes: function(test) {
         var times = ephemeris.Moon.getTimes(date, lat, lng);
 
-        test.equal(times.moonrise.toUTCString(), new Date(testMoonTimes.moonrise).toUTCString());
-        test.equal(times.moonset.toUTCString(), new Date(testMoonTimes.moonset).toUTCString());
+        test.equal(times.moonrise, testMoonTimes.moonrise);
+        test.equal(times.moonset, testMoonTimes.moonset);
         test.done();
     },
 
@@ -76,7 +76,7 @@ module.exports = {
         var moonIllum = ephemeris.Moon.getMoonIllumination(date);
 
         assertNear(test, moonIllum.fraction, 0.0944, 0.0001);
-        assertNear(test, moonIllum.angle, -2.0008, 0.0001);
+        assertNear(test, moonIllum.angle, -1.4658, 0.0001);
         test.done();
     }
 };
