@@ -14,34 +14,40 @@ var date = Date.UTC(2014, 2, 12),
     lng = -110.96;
 
 var testSunTimes = {
-    solarNoon: Date.UTC(2014, 2, 4, 19, 37, 12),
-    nadir: Date.UTC(2014, 2, 4, 7, 37, 12),
-    sunrise: Date.UTC(2014, 2, 4, 13, 50, 16),
-    sunset: Date.UTC(2014, 2, 5, 1, 24, 8),
-    sunriseEnd: Date.UTC(2014, 2, 4, 13, 52, 48),
-    sunsetStart: Date.UTC(2014, 2, 5, 1, 21, 37),
-    dawn: Date.UTC(2014, 2, 4, 13, 25, 42),
-    dusk: Date.UTC(2014, 2, 5, 1, 48, 43),
-    nauticalDawn: Date.UTC(2014, 2, 4, 12, 57, 18),
-    nauticalDusk: Date.UTC(2014, 2, 5, 2, 17, 7),
-    nightEnd: Date.UTC(2014, 2, 4, 12, 28, 55),
-    night: Date.UTC(2014, 2, 5, 2, 45, 30)
+    solarNoon: Date.UTC(2014, 2, 12, 19, 35, 13),
+    nadir: Date.UTC(2014, 2, 12, 7, 35, 13),
+    sunrise: Date.UTC(2014, 2, 12, 13, 40, 23),
+    sunset: Date.UTC(2014, 2, 13, 1, 30, 3),
+    sunriseEnd: Date.UTC(2014, 2, 12, 13, 42, 54),
+    sunsetStart: Date.UTC(2014, 2, 13, 1, 27, 32),
+    dawn: Date.UTC(2014, 2, 12, 13, 15, 55),
+    dusk: Date.UTC(2014, 2, 13, 1, 54, 30),
+    nauticalDawn: Date.UTC(2014, 2, 12, 12, 47, 32),
+    nauticalDusk: Date.UTC(2014, 2, 13, 2, 22, 53),
+    nightEnd: Date.UTC(2014, 2, 12, 12, 19, 2),
+    night: Date.UTC(2014, 2, 13, 2, 51, 23)
 };
 
 var testMoonTimes = {
-    moonrise: Date.UTC(2014, 2, 4, 15, 51, 8),
-    moonset: Date.UTC(2014, 2, 5, 5, 18, 56)
+    moonrise: Date.UTC(2014, 2, 12, 22, 15, 14),
+    moonset: Date.UTC(2014, 2, 12, 11, 3, 33)
 }
 
 module.exports = {
+    test_dates: function(test) {
+        console.log(new Date(Date.UTC(2014, 2, 13, 15, 49, 0)).valueOf());
+        console.log(Date.UTC(2014, 2, 13, 15, 49, 0));
+        test.done();
+    },
+
     /*
      * Should return an object with correct azimuth and altitude for the given time and location.
      */
     test_getPosition: function(test) {
         var sunPos = ephemeris.Sun.getPosition(date, lat, lng);
 
-        assertNear(test, ephemeris.toDegrees(sunPos.altitude), 16.36, 0.01);
-        assertNear(test, ephemeris.toDegrees(sunPos.azimuth), 250.87, 0.01);
+        assertNear(test, ephemeris.toDegrees(sunPos.altitude), 17.80, 0.01);
+        assertNear(test, ephemeris.toDegrees(sunPos.azimuth), 253.80, 0.01);
         test.done();
     },
 
@@ -50,7 +56,7 @@ module.exports = {
 
         for (var i in testSunTimes) {
             if (testSunTimes[i] != "")
-                test.equal(times[i], testSunTimes[i]);
+                test.equal(new Date(times[i]).toString(), new Date(testSunTimes[i]).toString());
         }
         test.done();
     },
@@ -58,25 +64,25 @@ module.exports = {
     test_getMoonPosition: function(test) {
         var moonPos = ephemeris.Moon.getPosition(date, lat, lng);
 
-        assertNear(test, ephemeris.toDegrees(moonPos.altitude), 51.10, 0.01);
-        assertNear(test, ephemeris.toDegrees(moonPos.azimuth), 240.54, 0.01);
-        assertNear(test, moonPos.distance, 378831.17, 0.01);
+        assertNear(test, ephemeris.toDegrees(moonPos.altitude), 32.25, 0.01);
+        assertNear(test, ephemeris.toDegrees(moonPos.azimuth), 91.44, 0.01);
+        assertNear(test, moonPos.distance, 405883.71, 0.01);
         test.done();
     },
 
     test_getMoonTimes: function(test) {
         var times = ephemeris.Moon.getTimes(date, lat, lng);
 
-        test.equal(times.moonrise, testMoonTimes.moonrise);
-        test.equal(times.moonset, testMoonTimes.moonset);
+        test.equal(new Date(times.moonrise).toString(), new Date(testMoonTimes.moonrise).toString());
+        test.equal(new Date(times.moonset).toString(), new Date(testMoonTimes.moonset).toString());
         test.done();
     },
 
     test_getMoonIllumination: function(test) {
         var moonIllum = ephemeris.Moon.getMoonIllumination(date);
 
-        assertNear(test, moonIllum.fraction, 0.0944, 0.0001);
-        assertNear(test, moonIllum.angle, -1.4658, 0.0001);
+        assertNear(test, moonIllum.fraction, 0.8030, 0.0001);
+        assertNear(test, moonIllum.angle, -1.4409, 0.0001);
         test.done();
     }
 };
