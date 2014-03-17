@@ -35,6 +35,7 @@ var testMoonTimes = {
 
 module.exports = {
     test_dates: function(test) {
+        console.log(new Date().getTime());
         console.log(new Date(Date.UTC(2014, 2, 13, 15, 49, 0)).valueOf());
         console.log(Date.UTC(2014, 2, 13, 15, 49, 0));
         test.done();

@@ -2,6 +2,12 @@
  * AquaBeagle
  * Name: lightControllerTest.js
  * Copyright (c) 2014. Brian Harris
+ ******************************************************************************/
+
+/*******************************************************************************
+ * AquaBeagle
+ * Name: lightControllerTest.js
+ * Copyright (c) 2014. Brian Harris
  * Nodeunit tests for lightController module.
  ******************************************************************************/
 
@@ -25,19 +31,11 @@ exports.manualMode = {
     testDaytime: function(test) {
         console.warn('Starting testDaytime()');
         var counter = 0,
-            now = new Date().getHours(),
-            offset;
-
-        // Calculate the offset to be 1200.
-        if (now < 12) {
-            offset = 12 - now;
-        } else {
-            offset = 24 - now + 12;
-        }
+            now = new Date(2014, 2, 16, 12).getTime(); // Make the time 12 noon today
 
         // Start the lighting process
         ctrl.start({
-            offset: offset
+            offset: now
         }, function(err, status) {
             if (err) console.error(err);
 
@@ -58,19 +56,11 @@ exports.manualMode = {
     testNighttime: function(test) {
         console.warn('Starting testNighttime()');
         var counter = 0,
-            now = new Date().getHours(),
-            offset;
-
-        // Calculate the offset to 2300
-        if (now < 23) {
-            offset = 23 - now;
-        } else {
-            offset = 24 - now + 23;
-        }
+            now = new Date(2014, 2, 16, 23).getTime(); // Make the time 11PM today
 
         // Start the lighting process
         ctrl.start({
-            offset: offset
+            offset: now
         }, function(err, status) {
             if (err) console.error(err);
 
@@ -91,19 +81,11 @@ exports.manualMode = {
     testSunrise: function(test) {
         console.warn('Starting testSunrise()');
         var counter = 0,
-            now = new Date().getHours(),
-            offset;
-
-        // Set the offset to put you between 0700 and 0800
-        if (now < 7) {
-            offset = 7 - now + .5;
-        } else {
-            offset = 24 - now + 7.5;
-        }
+            now = new Date(2014, 2, 16, 7, 30).getTime(); // Make the time 7:30 AM today
 
         // Start the lighting process
         ctrl.start({
-            offset: offset
+            offset: now
         }, function(err, status) {
             if (err) console.error(err);
 
@@ -124,19 +106,11 @@ exports.manualMode = {
     testSunset: function(test) {
         console.warn('Starting testSunset()');
         var counter = 0,
-            now = new Date().getHours(),
-            offset;
-
-        // Set the offset to put you between 1700 and 1800
-        if (now < 18) {
-            offset = 17 - now + .5;
-        } else {
-            offset = 24 - now + 17.5;
-        }
+            now = new Date(2014, 2, 16, 17, 30).getTime(); // Make the time 5:30 PM today
 
         // Start the lighting process
         ctrl.start({
-            offset: offset
+            offset: now
         }, function(err, status) {
             if (err) console.error(err);
 
@@ -170,29 +144,20 @@ exports.autoMode = {
         config.lightningFrequency = 0;
 
         ctrl.resetEphemeris();
-        var now = new Date();
-        sunTimes = ephemeris.Sun.getTimes(new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())), 32.22, -110.96);
+        sunTimes = ephemeris.Sun.getTimes(Date.UTC(2014, 2, 16), 32.22, -110.96);
         callback();
     },
 
     testDaytime: function(test) {
         var counter = 0,
-            now = new Date().getHours(),
-            offset;
+            now;
 
         // Calculate offset so it is between sunriseEnd and sunsetStart
-        var diff = (sunTimes.sunsetStart - sunTimes.sunriseEnd) / 2;
-        if (now < sunTimes.sunriseEnd.getHours()) {
-            offset = sunTimes.sunriseEnd.getHours() - now + (diff / (1000*60*60));
-        } else if (now > sunTimes.sunsetStart.getHours()) {
-            offset = (now - sunTimes.sunsetStart.getHours()) * -1 - (diff / (1000*60*60));
-        } else {
-            offset = 0;
-        }
+        now = sunTimes.sunriseEnd + ((sunTimes.sunsetStart - sunTimes.sunriseEnd) / 2);
 
         // Start the lighting process
         ctrl.start({
-            offset: offset
+            offset: now
         }, function(err, status) {
             if (err) console.error(err);
 
@@ -211,31 +176,63 @@ exports.autoMode = {
     },
 
     testNighttimeWithMoon: function(test) {
-        test.done();
+        var counter = 0,
+            now = new Date(2014, 2, 16, 23);
+
+        // Start the lighting process
+        ctrl.start({
+            offset: now
+        }, function(err, status) {
+            if (err) console.error(err);
+
+            console.log(status);
+            if (status.status === "Night" && status.intensity[2] < config.pwmSettings[1][2]) {
+                counter++;
+            }
+        });
+
+        // Run process for 5 seconds
+        setTimeout(function() {
+            ctrl.stop();
+            test.equal(counter, 5);
+            test.done();
+        }, 5*1000);
     },
 
     testNighttimeWithoutMoon: function(test) {
-        test.done();
+        var counter = 0,
+            now = new Date(2014, 2, 29, 23);
+
+        // Start the lighting process
+        ctrl.start({
+            offset: now
+        }, function(err, status) {
+            if (err) console.error(err);
+
+            console.log(status);
+            if (status.status === "Night" && status.intensity[2] === 0) {
+                counter++;
+            }
+        });
+
+        // Run process for 5 seconds
+        setTimeout(function() {
+            ctrl.stop();
+            test.equal(counter, 5);
+            test.done();
+        }, 5*1000);
     },
 
     testSunrise: function(test) {
         var counter = 0,
-            now = new Date().getHours(),
-            offset;
+            now;
 
         // Calculate offset so it is between nightEnd and sunriseEnd
-        var diff = (sunTimes.sunriseEnd - sunTimes.nightEnd) / 2;
-        if (now < sunTimes.nightEnd.getHours()) {
-            offset = sunTimes.nightEnd.getHours() - now + (diff / (1000*60*60));
-        } else if (now > sunTimes.sunriseEnd.getHours()) {
-            offset = (now - sunTimes.sunriseEnd.getHours()) * -1 - (diff / (1000*60*60));
-        } else {
-            offset = 0;
-        }
+        now = sunTimes.nightEnd + ((sunTimes.sunriseEnd - sunTimes.nightEnd) / 2);
 
         // Start the lighting process
         ctrl.start({
-            offset: offset
+            offset: now
         }, function(err, status) {
             if (err) console.error(err);
 
@@ -255,22 +252,14 @@ exports.autoMode = {
 
     testSunset: function(test) {
         var counter = 0,
-            now = new Date().getHours(),
-            offset;
+            now;
 
         // Calculate offset so it is between nightEnd and sunriseEnd
-        var diff = (sunTimes.night - sunTimes.sunsetStart) / 2;
-        if (now < sunTimes.sunsetStart.getHours()) {
-            offset = sunTimes.sunsetStart.getHours() - now + (diff / (1000*60*60));
-        } else if (now > sunTimes.night.getHours()) {
-            offset = (now - sunTimes.night.getHours()) * -1 - (diff / (1000*60*60));
-        } else {
-            offset = 0;
-        }
+        now = sunTimes.sunsetStart + ((sunTimes.night - sunTimes.sunsetStart) / 2);
 
         // Start the lighting process
         ctrl.start({
-            offset: offset
+            offset: now
         }, function(err, status) {
             if (err) console.error(err);
 
