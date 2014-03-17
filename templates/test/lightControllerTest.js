@@ -13,8 +13,6 @@
 
 var config = require('aquaConfig')();
 var ctrl = require('lightController');
-var ephemeris = require('ephemeris');
-var sunTimes, moonTimes;
 
 exports.manualMode = {
     setUp: function(callback) {
@@ -31,7 +29,7 @@ exports.manualMode = {
     testDaytime: function(test) {
         console.warn('Starting testDaytime()');
         var counter = 0,
-            now = new Date(2014, 2, 16, 12).getTime(); // Make the time 12 noon today
+            now = new Date(Date.UTC(2014, 2, 16, 19)); // Make the time 12 noon today
 
         // Start the lighting process
         ctrl.start({
@@ -56,7 +54,7 @@ exports.manualMode = {
     testNighttime: function(test) {
         console.warn('Starting testNighttime()');
         var counter = 0,
-            now = new Date(2014, 2, 16, 23).getTime(); // Make the time 11PM today
+            now = new Date(Date.UTC(2014, 2, 17, 6)); // Make the time 11PM today
 
         // Start the lighting process
         ctrl.start({
@@ -81,7 +79,7 @@ exports.manualMode = {
     testSunrise: function(test) {
         console.warn('Starting testSunrise()');
         var counter = 0,
-            now = new Date(2014, 2, 16, 7, 30).getTime(); // Make the time 7:30 AM today
+            now = new Date(Date.UTC(2014, 2, 16, 14, 30)); // Make the time 7:30 AM today
 
         // Start the lighting process
         ctrl.start({
@@ -106,7 +104,7 @@ exports.manualMode = {
     testSunset: function(test) {
         console.warn('Starting testSunset()');
         var counter = 0,
-            now = new Date(2014, 2, 16, 17, 30).getTime(); // Make the time 5:30 PM today
+            now = new Date(Date.UTC(2014, 2, 17, 0, 30)); // Make the time 5:30 PM today
 
         // Start the lighting process
         ctrl.start({
@@ -144,16 +142,12 @@ exports.autoMode = {
         config.lightningFrequency = 0;
 
         ctrl.resetEphemeris();
-        sunTimes = ephemeris.Sun.getTimes(Date.UTC(2014, 2, 16), 32.22, -110.96);
         callback();
     },
 
     testDaytime: function(test) {
         var counter = 0,
-            now;
-
-        // Calculate offset so it is between sunriseEnd and sunsetStart
-        now = sunTimes.sunriseEnd + ((sunTimes.sunsetStart - sunTimes.sunriseEnd) / 2);
+            now = new Date(Date.UTC(2014, 2, 16, 19)); // Set time to noon
 
         // Start the lighting process
         ctrl.start({
@@ -177,7 +171,7 @@ exports.autoMode = {
 
     testNighttimeWithMoon: function(test) {
         var counter = 0,
-            now = new Date(2014, 2, 16, 23);
+            now = new Date(Date.UTC(2014, 2, 17, 6));  // Set to 11PM today.
 
         // Start the lighting process
         ctrl.start({
@@ -201,7 +195,7 @@ exports.autoMode = {
 
     testNighttimeWithoutMoon: function(test) {
         var counter = 0,
-            now = new Date(2014, 2, 29, 23);
+            now = new Date(Date.UTC(2014, 2, 30, 6));  // Set to 11PM on 3/29
 
         // Start the lighting process
         ctrl.start({
@@ -225,10 +219,7 @@ exports.autoMode = {
 
     testSunrise: function(test) {
         var counter = 0,
-            now;
-
-        // Calculate offset so it is between nightEnd and sunriseEnd
-        now = sunTimes.nightEnd + ((sunTimes.sunriseEnd - sunTimes.nightEnd) / 2);
+            now = new Date(Date.UTC(2014, 2, 16, 13)); // Set to 6AM today
 
         // Start the lighting process
         ctrl.start({
@@ -252,10 +243,7 @@ exports.autoMode = {
 
     testSunset: function(test) {
         var counter = 0,
-            now;
-
-        // Calculate offset so it is between nightEnd and sunriseEnd
-        now = sunTimes.sunsetStart + ((sunTimes.night - sunTimes.sunsetStart) / 2);
+            now = new Date(Date.UTC(2014, 2, 17, 2)); // Set to 7PM today
 
         // Start the lighting process
         ctrl.start({

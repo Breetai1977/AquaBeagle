@@ -1,5 +1,7 @@
 /**
- * Unit tests for the ephemeris.js module.
+ * ephemerisTest.js
+ * (c) 2014 Brian Harris
+ * Unit tests for the ephemeris module.
  */
 
 var ephemeris = require('ephemeris');
@@ -9,81 +11,103 @@ function assertNear(test, val1, val2, margin) {
     test.ok(Math.abs(val1 - val2) < margin, 'asserted almost equal: ' + val1 + ', ' + val2);
 }
 
-var date = Date.UTC(2014, 2, 12),
-    lat = 32.22,
-    lng = -110.96;
-
-var testSunTimes = {
-    solarNoon: Date.UTC(2014, 2, 12, 19, 35, 13),
-    nadir: Date.UTC(2014, 2, 12, 7, 35, 13),
-    sunrise: Date.UTC(2014, 2, 12, 13, 40, 23),
-    sunset: Date.UTC(2014, 2, 13, 1, 30, 3),
-    sunriseEnd: Date.UTC(2014, 2, 12, 13, 42, 54),
-    sunsetStart: Date.UTC(2014, 2, 13, 1, 27, 32),
-    dawn: Date.UTC(2014, 2, 12, 13, 15, 55),
-    dusk: Date.UTC(2014, 2, 13, 1, 54, 30),
-    nauticalDawn: Date.UTC(2014, 2, 12, 12, 47, 32),
-    nauticalDusk: Date.UTC(2014, 2, 13, 2, 22, 53),
-    nightEnd: Date.UTC(2014, 2, 12, 12, 19, 2),
-    night: Date.UTC(2014, 2, 13, 2, 51, 23)
-};
-
-var testMoonTimes = {
-    moonrise: Date.UTC(2014, 2, 12, 22, 15, 14),
-    moonset: Date.UTC(2014, 2, 12, 11, 3, 33)
-}
-
 module.exports = {
-    test_dates: function(test) {
-        console.log(new Date().getTime());
-        console.log(new Date(Date.UTC(2014, 2, 13, 15, 49, 0)).valueOf());
-        console.log(Date.UTC(2014, 2, 13, 15, 49, 0));
+    fromJulian: function(test) {
+        console.log('fromJulian()');
+        var date;
+        date = ephemeris.fromJulian(2456733.140278);
+
+        console.log(date);
+        console.log('');
+        test.ok(date.toString() === new Date(2014, 2, 16, 8, 22).toString());
         test.done();
     },
 
-    /*
-     * Should return an object with correct azimuth and altitude for the given time and location.
-     */
-    test_getPosition: function(test) {
-        var sunPos = ephemeris.Sun.getPosition(date, lat, lng);
+    fromUTCHours: function(test) {
+        console.log('fromUTCHours()');
+        var date;
+        date = ephemeris.fromUTCHours(2014, 3, 16, 25.54151232708563);
 
-        assertNear(test, ephemeris.toDegrees(sunPos.altitude), 17.80, 0.01);
-        assertNear(test, ephemeris.toDegrees(sunPos.azimuth), 253.80, 0.01);
+        console.log(date.toUTCString());
+        console.log('');
+        test.ok(date.toUTCString() === new Date(Date.UTC(2014, 2, 17, 1, 32, 29)).toUTCString());
         test.done();
     },
 
-    test_getTimes: function(test) {
-        var times = ephemeris.Sun.getTimes(date, lat, lng);
+    fromLocalHours: function(test) {
+        console.log('fromLoaclHours()');
+        var date;
+        date = ephemeris.fromLocalHours(2014, 3, 16, 6.336774310498183);
 
-        for (var i in testSunTimes) {
-            if (testSunTimes[i] != "")
-                test.equal(new Date(times[i]).toString(), new Date(testSunTimes[i]).toString());
+        console.log(date);
+        console.log('');
+        test.ok(date.toString() === new Date(2014, 2, 16, 6, 20, 12).toString());
+        test.done();
+    },
+
+    sunTimes: function(test) {
+        console.log('sunTimes()');
+        var times;
+        times = ephemeris.Sun.getTimes(2014, 3, 16, 32.22, -110.96);
+
+        console.log(times);
+        console.log('');
+        assertNear(test, times[0][1], 13.53, 0.01);
+        assertNear(test, times[0][2], 25.54, 0.01);
+        assertNear(test, times[1][1], 12.18, 0.01);
+        assertNear(test, times[1][2], 26.90, 0.01);
+        test.done();
+    },
+
+    moonPosition: function(test) {
+        console.log('moonPosition()');
+        var pos;
+        pos = ephemeris.Moon.getPosition(2014, 3, 16, 23.25);
+
+        console.log(pos);
+        console.log('');
+        assertNear(test, pos[0], 11.88, 0.01);
+        assertNear(test, pos[1], -2.02, 0.01);
+        assertNear(test, pos[2], 394822, 1);
+        test.done();
+    },
+
+    moonTimes: function(test) {
+        console.log('moonTimes()');
+        var times;
+        times = ephemeris.Moon.getTimes(2014, 3, 16, new Date().getTimezoneOffset()/60*-1, 32.22, -110.96);
+
+        console.log(times);
+        console.log('');
+        assertNear(test, times[0], 18.83, 0.01);
+        assertNear(test, times[1], 6.33, 0.01);
+        test.done();
+    },
+
+    moonFraction: function(test) {
+        console.log('moonFraction()');
+        var frac;
+        frac = ephemeris.Moon.getFraction(2014, 3, 16, 0);
+
+        console.log(frac);
+        console.log('');
+        assertNear(test, frac, 1.0, 0.1);
+        test.done();
+    },
+
+    moonQuarters: function(test) {
+        console.log('moonQuarters()');
+        var quarters;
+        quarters = ephemeris.Moon.getQuarters(2014, 3, 16);
+
+        for (var i=0; i<4; i++) {
+            console.log(ephemeris.fromJulian(quarters[i]).toUTCString());
         }
-        test.done();
-    },
-
-    test_getMoonPosition: function(test) {
-        var moonPos = ephemeris.Moon.getPosition(date, lat, lng);
-
-        assertNear(test, ephemeris.toDegrees(moonPos.altitude), 32.25, 0.01);
-        assertNear(test, ephemeris.toDegrees(moonPos.azimuth), 91.44, 0.01);
-        assertNear(test, moonPos.distance, 405883.71, 0.01);
-        test.done();
-    },
-
-    test_getMoonTimes: function(test) {
-        var times = ephemeris.Moon.getTimes(date, lat, lng);
-
-        test.equal(new Date(times.moonrise).toString(), new Date(testMoonTimes.moonrise).toString());
-        test.equal(new Date(times.moonset).toString(), new Date(testMoonTimes.moonset).toString());
-        test.done();
-    },
-
-    test_getMoonIllumination: function(test) {
-        var moonIllum = ephemeris.Moon.getMoonIllumination(date);
-
-        assertNear(test, moonIllum.fraction, 0.8030, 0.0001);
-        assertNear(test, moonIllum.angle, -1.4409, 0.0001);
+        console.log('');
+        test.ok(ephemeris.fromJulian(quarters[0]).toUTCString() === new Date(Date.UTC(2014, 2, 1, 7, 59, 53)).toUTCString());
+        test.ok(ephemeris.fromJulian(quarters[1]).toUTCString() === new Date(Date.UTC(2014, 2, 8, 13, 26, 54)).toUTCString());
+        test.ok(ephemeris.fromJulian(quarters[2]).toUTCString() === new Date(Date.UTC(2014, 2, 16, 17, 8, 38)).toUTCString());
+        test.ok(ephemeris.fromJulian(quarters[3]).toUTCString() === new Date(Date.UTC(2014, 2, 24, 1, 46, 23)).toUTCString());
         test.done();
     }
 };
