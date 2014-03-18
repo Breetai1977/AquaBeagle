@@ -136,12 +136,12 @@ exports.autoMode = {
         config.pwmSettings[1][2] = 287;
         config.pwmSettings[3][0] = 1;
         config.pwmSettings[3][1] = 1;
+        config.simulateMoon = 1;
         config.latitude = 32.22;
         config.longitude = -110.96;
         config.cloudFrequency = 0;
         config.lightningFrequency = 0;
 
-        ctrl.resetEphemeris();
         callback();
     },
 
