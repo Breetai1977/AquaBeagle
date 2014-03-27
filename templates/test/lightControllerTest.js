@@ -293,7 +293,7 @@ exports.autoMode = {
         ctrl.init();
 
         var counter = 0,
-            now = new Date(Date.UTC(2014, 2, 16, 19)); // Set to noon today
+            now = new Date(Date.UTC(2014, 2, 17, 6)); // Set to 11pm today
 
         // Start the lighting process
         ctrl.start({
@@ -302,14 +302,14 @@ exports.autoMode = {
             if (err) console.error(err);
 
             console.log(status);
-            if (status.status === "Day" && status.intensity[0] === 3000 && status.intensity[1] === 3000) {
+            if (status.status === "Realtime" && status.intensity[0] === 3000 && status.intensity[1] === 3000) {
                 counter++;
             }
         });
 
         // 3 seconds in, flip the manual override switch
         setTimeout(function() {
-            gpio.debugSetState(true);
+            gpio.state = 1;
         }, 3*1000);
 
         // Run the process for 5 seconds
